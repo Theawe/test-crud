@@ -25,5 +25,3 @@ Syarat untuk mencoba aplikasi ini
    ```
    mvn spring-boot:run
    ```
-
-## Cara Menggunakan
