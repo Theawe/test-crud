@@ -1,0 +1,101 @@
+{
+	"info": {
+		"_postman_id": "be8d81d1-ff47-4c0a-952b-2ae7883fcc35",
+		"name": "Employee",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "27982305"
+	},
+	"item": [
+		{
+			"name": "Get All",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8080/api/v1/employees"
+			},
+			"response": []
+		},
+		{
+			"name": "Get By Nik",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8080/api/v1/employee/3"
+			},
+			"response": []
+		},
+		{
+			"name": "Get By Name",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/employee/search?name=wirasatwika",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"employee",
+						"search"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "wirasatwika"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Insert Employee",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"employeeName\" : \"ridwan\",\r\n    \"employeeSalary\" : 1000000,\r\n    \"employeeAge\" : 22\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8080/api/v1/employee/create"
+			},
+			"response": []
+		},
+		{
+			"name": "Update Employee",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"employeeName\" : \"wirasatwika\",\r\n    \"employeeSalary\" : 1000000,\r\n    \"employeeAge\" : 25\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8080/api/v1/employee/update/100"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Employee",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": "http://localhost:8080/api/v1/employee/delete/2"
+			},
+			"response": []
+		}
+	]
+}

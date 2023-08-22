@@ -2,6 +2,7 @@ package example.employee.controller;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,32 +32,37 @@ public class EmployeeController {
     }
 
     @GetMapping("/employees")
-    public ResponseEntity<Object> getAllEmployees() {
+    public ResponseEntity<DataResponseBuilder<List<Employee>>> getAllEmployees() {
         List<Employee> employees = employeeRepo.findAll();
         DataResponseBuilder<List<Employee>> response = DataResponseBuilder.<List<Employee>>builder()
                 .data(employees)
                 .status(HttpStatus.OK)
                 .build();
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @GetMapping("/employee/{nik}")
-    public ResponseEntity<Object> getEmployeeByNik(@PathVariable(name = "nik") Integer nik) {
-        Employee employee = employeeRepo.findById(nik).orElse(null);
-        String message = "Employee Not Found";
-        if (employee == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
-        }
-        DataResponseBuilder<Employee> response = DataResponseBuilder.<Employee>builder()
-                .data(employee)
-                .status(HttpStatus.OK)
-                .build();
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/employee/{nik}")
+    public ResponseEntity<DataResponseBuilder<Object>> getEmployeeByNik(@PathVariable(name = "nik") Integer nik) {
+        Optional<Employee> employeeOptional = employeeRepo.findById(nik);
+        if (employeeOptional.isEmpty()) {
+            String message = "Employee Not Found";
+            HashMap<String, String> result = new HashMap<>();
+            result.put("message", message);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(DataResponseBuilder.<Object>builder()
+                    .data(result)
+                    .status(HttpStatus.NOT_FOUND)
+                    .build());
+        }
+        Employee employee = employeeOptional.get();
+        return ResponseEntity.ok(DataResponseBuilder.<Object>builder()
+                .data(employee)
+                .status(HttpStatus.OK)
+                .build());
+    }
+
     @GetMapping("/employee/search")
-    public ResponseEntity<Object> getEmployeeByName(@RequestParam String name) {
+    public ResponseEntity<DataResponseBuilder<List<Employee>>> getEmployeeByName(@RequestParam String name) {
         List<Employee> employees = employeeRepo.findByEmployeeName(name);
         DataResponseBuilder<List<Employee>> response = DataResponseBuilder.<List<Employee>>builder()
                 .data(employees)
@@ -67,8 +73,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/employee/create")
-    public ResponseEntity<Object> createEmployee(@RequestBody ReqEmployee request) {
-
+    public ResponseEntity<DataResponseBuilder<Employee>> createEmployee(@RequestBody ReqEmployee request) {
         Employee employee = Employee.builder()
                 .employeeName(request.getEmployeeName())
                 .employeeSalary(request.getEmployeeSalary())
@@ -84,36 +89,47 @@ public class EmployeeController {
     }
 
     @PutMapping("/employee/update/{nik}")
-    public ResponseEntity<Object> updateEmployee(@PathVariable(name = "nik") Integer nik,
+    public ResponseEntity<DataResponseBuilder<Object>> updateEmployee(@PathVariable(name = "nik") Integer nik,
             @RequestBody ReqEmployee request) {
-        Employee employee = employeeRepo.findById(nik).orElse(null);
-        String message = "Employee Not Found";
-        if (employee == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
+        Optional<Employee> employeeOptional = employeeRepo.findById(nik);
 
+        if (employeeOptional.isEmpty()) {
+            String message = "Employee Not Found";
+            HashMap<String, String> result = new HashMap<>();
+            result.put("message", message);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(DataResponseBuilder.<Object>builder()
+                    .data(result)
+                    .status(HttpStatus.NOT_FOUND)
+                    .build());
         }
+        Employee employee = employeeOptional.get();
         employee.setEmployeeAge(request.getEmployeeAge());
         employee.setEmployeeName(request.getEmployeeName());
         employee.setEmployeeSalary(request.getEmployeeSalary());
         employeeRepo.save(employee);
 
-        DataResponseBuilder<Employee> response = DataResponseBuilder.<Employee>builder()
+        DataResponseBuilder<Object> response = DataResponseBuilder.<Object>builder()
                 .data(employee)
                 .status(HttpStatus.OK)
                 .build();
-        return ResponseEntity.ok(response);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/employee/delete/{nik}")
-    public ResponseEntity<Object> deleteEmployee(@PathVariable(name = "nik") Integer nik) {
-        Employee employee = employeeRepo.findById(nik).orElse(null);
+    public ResponseEntity<HashMap<String, String>> deleteEmployee(@PathVariable(name = "nik") Integer nik) {
+        Optional<Employee> employeeOptional = employeeRepo.findById(nik);
         HashMap<String, String> result = new HashMap<>();
-        result.put("Message", "successfully! deleted Records");
-        String message = "Employee Not Found";
-        if (employee == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
+        String message = "Successfully! deleted Records";
+        result.put("message", message);
+        if (employeeOptional.isEmpty()) {
+            message = "Employee Not Found";
+            result.put("message", message);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
         }
+        Employee employee = employeeOptional.get();
         employeeRepo.delete(employee);
         return ResponseEntity.ok(result);
     }
+
 }
